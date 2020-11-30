@@ -20,10 +20,30 @@
 (pprint (d/q '[:find ?entidade
                :where [?entidade :produto/nome]] db))
 
-(let [computador (model/novo-produto "Celular Novo" "/celular/novo" 1500.10M)]
-  (pprint (d/transact conn [computador])))
+(let [celular (model/novo-produto "Celular Novo" "/celular/novo" 1500.10M)]
+  (pprint (d/transact conn [celular])))
 
 (pprint (d/q '[:find ?entidade
                :where [?entidade :produto/nome]] db))
 
-(pprint "fim")
+; suporta nao enviar os valores
+(let [calculadora {:produto/nome "Calculadora"}]
+  (pprint (d/transact conn [calculadora])))
+
+; nao suporta
+; (let [calculadora {:produto/nome "Calculadora" :produto/slug nil}]
+; (pprint (d/transact conn [calculadora])))
+
+
+(let [celular-barato (model/novo-produto "Celular Barato" "/celular/barato" 500.99M)
+      resultado @(d/transact conn [celular-barato])
+      id-entidade-old (first (vals (:tempids resultado)))
+      id-entidade (-> resultado :tempids vals first)]
+  (pprint resultado)
+  (pprint id-entidade)
+  (pprint @(d/transact conn [[:db/add id-entidade :produto/preco 0.99M]]))
+  (pprint @(d/transact conn [[:db/retract id-entidade :produto/slug "/celular/barato"]])))
+
+
+
+
