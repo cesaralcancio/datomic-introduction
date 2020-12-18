@@ -2,11 +2,14 @@
   (:use clojure.pprint)
   (:require [datomic.api :as d]))
 
+(defn uuid [] (java.util.UUID/randomUUID))
+
 (defn novo-produto
-  [nome slug preco]
+  [uuid nome slug preco]
   {
+   :produto/id   uuid
    :produto/nome nome
    :produto/slug slug
    :produto/preco preco})
 
-(pprint (novo-produto "Computador" "/computador" 3500.10))
+(pprint (novo-produto (uuid) "Computador" "/computador" 3500.10))

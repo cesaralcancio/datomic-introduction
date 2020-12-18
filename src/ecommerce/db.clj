@@ -39,7 +39,15 @@
               :db/valueType     :db.type/string
               :db/cardinality   :db.cardinality/many
               :db/doc           "Palavras chave para o produto"
-              }])
+              }
+             {
+              :db/ident         :produto/id
+              :db/valueType     :db.type/uuid
+              :db/cardinality   :db.cardinality/one
+              :db/unique        :db.unique/identity
+              :db/doc           "Produto ID"
+              }
+             ])
 
 (defn cria-schema [conn]
   (d/transact conn schema))
@@ -104,3 +112,14 @@
          :in $ ?palavra-chave
          :where [?produto :produto/palavra-chave ?palavra-chave]]
        db palavra-chave-buscada))
+
+(defn um-produto [db id-param]
+  (d/q '[:find (pull ?id [*])
+         :in $ ?id
+         ] db id-param))
+
+(defn um-produto-melhor [db produto-id]
+  (d/pull db '[*] produto-id))
+
+(defn um-produto-por-produto-uuid [db produto-uuid]
+  (d/pull db '[*] [:produto/id produto-uuid]))
