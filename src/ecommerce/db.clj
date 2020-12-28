@@ -132,13 +132,13 @@
          :where [?produto :produto/palavra-chave ?palavra-chave]]
        db palavra-chave-buscada))
 
-(defn um-produto [db id-param]
+(defn um-produto [db db-id]
   (d/q '[:find (pull ?id [*])
          :in $ ?id
-         ] db id-param))
+         ] db db-id))
 
-(defn um-produto-melhor [db produto-id]
-  (d/pull db '[*] produto-id))
+(defn um-produto-melhor [db db-id]
+  (d/pull db '[*] db-id))
 
 (defn um-produto-por-produto-uuid [db produto-uuid]
   (d/pull db '[*] [:produto/id produto-uuid]))
