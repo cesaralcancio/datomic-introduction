@@ -29,3 +29,6 @@
 
 ; por produto.uuid
 (db/um-produto-por-produto-uuid (dt/db conn) (:produto/id computador))
+
+; todos os nomes de produtos + categorias
+(db/todos-nomes-produtos-categorias (dt/db conn))

@@ -188,4 +188,15 @@
                                   produtos)]
     (d/transact conn para-transacionar)))
 
+
+(defn todos-nomes-produtos-categorias [db]
+  (d/q '[:find ?produto-nome ?produto-categoria ?categoria-nome
+         :keys produto categoria-id categoria
+         :where
+         [?produto :produto/id ?produto-id]
+         [?produto :produto/nome ?produto-nome]
+         [?produto :produto/categoria ?produto-categoria]
+         [?produto-categoria :categoria/id ?categoria-id]
+         [?produto-categoria :categoria/nome ?categoria-nome]] db))
+∏
 (pprint "Carregado DB")
