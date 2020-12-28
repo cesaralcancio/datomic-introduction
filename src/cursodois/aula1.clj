@@ -4,11 +4,11 @@
             [ecommerce.model :as model]
             [datomic.api :as dt]))
 
-(db/apaga-banco)
+(db/apaga-banco!)
 
-(def conn (db/abre-conexao))
+(def conn (db/abre-conexao!))
 
-(db/cria-schema conn)
+(db/cria-schema! conn)
 
 (let [computador (model/novo-produto (model/uuid) "Computador Novo", "/computador-novo", 2500.00M)
       celular (model/novo-produto (model/uuid) "Celular Caro", "/celular", 15000.99M)
@@ -20,6 +20,7 @@
 
 (def produtos (db/todos-os-produtos-top-top (dt/db conn)))
 (pprint produtos)
+
 (def primeiro-produto (:db/id (first (first produtos))))
 (def primeiro-produto (-> produtos first first :db/id))
 (def primeiro-produto-uuid (-> produtos first first :produto/id))

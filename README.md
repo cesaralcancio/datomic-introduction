@@ -6,6 +6,17 @@ A Clojure library designed to ... well, that part is up to you.
 
 FIXME
 
+## IntelliJ commands with Mac OS
+
+* `shift + option + j` to remove from function
+* `shift + option + k` to add into the function
+* `shift + option + l` to run the code
+* `shift + option + p` to run just the code you have been selected
+* `option + command + l` to ident code
+* `command + shift + n` to search file
+* `command + /` to comment
+* What else?
+
 ## License
 
 Copyright © 2020 FIXME

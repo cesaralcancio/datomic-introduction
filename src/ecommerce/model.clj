@@ -12,4 +12,10 @@
    :produto/slug slug
    :produto/preco preco})
 
+(defn nova-categoria
+  [uuid nome]
+  {:categoria/id uuid
+   :categoria/nome nome})
+
 (pprint (novo-produto (uuid) "Computador" "/computador" 3500.10))
+(pprint "Carregado Model")

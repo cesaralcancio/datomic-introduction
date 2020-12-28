@@ -4,11 +4,11 @@
 
 (pprint (def db-uri "datomic:dev://localhost:4334/hello"))
 
-(defn abre-conexao []
+(defn abre-conexao! []
   (d/create-database db-uri)
   (d/connect db-uri))
 
-(defn apaga-banco []
+(defn apaga-banco! []
   (d/delete-database db-uri))
 
 ; id entidade,    atributo,       valor,        id transaction,     operacao (insert/delete)
@@ -19,37 +19,56 @@
 ; 16              :produto/slug   /celular      789                 true
 
 
-(def schema [{:db/ident         :produto/nome
-              :db/valueType     :db.type/string
-              :db/cardinality   :db.cardinality/one
-              :db/doc           "O nome de um produto"
+(def schema [
+             ; Produtos
+             {:db/ident       :produto/nome
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/one
+              :db/doc         "O nome de um produto"
               }
-             {:db/ident         :produto/slug
-              :db/valueType     :db.type/string
-              :db/cardinality   :db.cardinality/one
-              :db/doc           "O caminho para acessar o produto via http"
+             {:db/ident       :produto/slug
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/one
+              :db/doc         "O caminho para acessar o produto via http"
               }
-             {:db/ident         :produto/preco
-              :db/valueType     :db.type/bigdec
-              :db/cardinality   :db.cardinality/one
-              :db/doc           "O preco de um produto com precisao monetaria."
-              }
-             {
-              :db/ident         :produto/palavra-chave
-              :db/valueType     :db.type/string
-              :db/cardinality   :db.cardinality/many
-              :db/doc           "Palavras chave para o produto"
+             {:db/ident       :produto/preco
+              :db/valueType   :db.type/bigdec
+              :db/cardinality :db.cardinality/one
+              :db/doc         "O preco de um produto com precisao monetaria."
               }
              {
-              :db/ident         :produto/id
-              :db/valueType     :db.type/uuid
-              :db/cardinality   :db.cardinality/one
-              :db/unique        :db.unique/identity
-              :db/doc           "Produto ID"
+              :db/ident       :produto/palavra-chave
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/many
+              :db/doc         "Palavras chave para o produto"
+              }
+             {
+              :db/ident       :produto/id
+              :db/valueType   :db.type/uuid
+              :db/cardinality :db.cardinality/one
+              :db/unique      :db.unique/identity
+              :db/doc         "Produto ID"
+              }
+             {
+              :db/ident       :produto/categoria
+              :db/valueType   :db.type/ref
+              :db/cardinality :db.cardinality/one
+              }
+             ; Categorias
+             {
+              :db/ident       :categoria/nome
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/one
+              }
+             {
+              :db/ident       :categoria/id
+              :db/valueType   :db.type/uuid
+              :db/cardinality :db.cardinality/one
+              :db/unique      :db.unique/identity
               }
              ])
 
-(defn cria-schema [conn]
+(defn cria-schema! [conn]
   (d/transact conn schema))
 
 ; #datom [id-da-entidade atributo valor id-da-tx added?]
@@ -84,7 +103,7 @@
 (defn todos-os-precos [db]
   (d/q '[:find ?nome ?preco
          :keys produto/nome produto/preco
-        :where
+         :where
          [?produto :produto/preco ?preco]
          [?produto :produto/nome ?nome]] db))
 
@@ -123,3 +142,50 @@
 
 (defn um-produto-por-produto-uuid [db produto-uuid]
   (d/pull db '[*] [:produto/id produto-uuid]))
+
+(defn todas-categorias [db]
+  (d/q '[:find ?id ?nome
+         :keys categoria/id categoria/nome
+         :where
+         [?seila :categoria/id ?id]
+         [?seila :categoria/nome ?nome]] db))
+
+(defn todas-categorias-pull [db]
+  (d/q '[:find (pull ?dbid [*])
+         :where
+         [?dbid :categoria/id]] db))
+
+
+
+
+
+
+(defn adiciona-produtos! [conn produtos]
+  @(d/transact conn produtos))
+
+(defn adiciona-categorias! [conn categorias]
+  @(d/transact conn categorias))
+
+; relacionar individualmente
+;(d/transact conn [[:db/add
+;                   [:produto/id (:produto/id computador)]
+;                   :produto/categoria
+;                   [:categoria/id (:categoria/id eletronicos)]]])
+;
+;(d/transact conn [[:db/add
+;                   [:produto/id (:produto/id tabuleiro-de-xadrez)]
+;                   :produto/categoria
+;                   [:categoria/id (:categoria/id esporte)]]])
+
+; se o produt n tem ID da erro
+(defn atribui-categorias! [conn produtos categoria]
+  (let [para-transacionar (reduce (fn [db-adds produto]
+                                    (conj db-adds [:db/add
+                                                   [:produto/id (:produto/id produto)]
+                                                   :produto/categoria
+                                                   [:categoria/id (:categoria/id categoria)]]))
+                                  []
+                                  produtos)]
+    (d/transact conn para-transacionar)))
+
+(pprint "Carregado DB")
