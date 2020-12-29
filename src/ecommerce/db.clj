@@ -198,5 +198,23 @@
          [?produto :produto/categoria ?produto-categoria]
          [?produto-categoria :categoria/id ?categoria-id]
          [?produto-categoria :categoria/nome ?categoria-nome]] db))
-∏
+
+; exemplos com forward navigation
+(defn todos-produtos-por-categoria-forward [db nome-categoria]
+  (d/q '[:find (pull ?produto [* {:produto/categoria [*]}])
+         :in $ ?nome-categoria
+         :where
+         [?categoria :categoria/nome ?nome-categoria]
+         [?produto :produto/categoria ?categoria]
+         ] db nome-categoria))
+
+; exemplos com backward navigation
+(defn todos-produtos-por-categoria-backward [db nome-categoria]
+  (d/q '[:find (pull ?categoria [* {:produto/_categoria [*]}])
+         :in $ ?nome-categoria
+         :where
+         [?categoria :categoria/nome ?nome-categoria]
+         [?produto :produto/categoria ?categoria]
+         ] db nome-categoria))
+
 (pprint "Carregado DB")

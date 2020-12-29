@@ -32,3 +32,8 @@
 
 ; todos os nomes de produtos + categorias
 (db/todos-nomes-produtos-categorias (dt/db conn))
+(db/todos-produtos-por-categoria-forward (dt/db conn) "Eletronicos")
+(db/todos-produtos-por-categoria-forward (dt/db conn) "Esporte")
+
+(db/todos-produtos-por-categoria-backward (dt/db conn) "Eletronicos")
+(db/todos-produtos-por-categoria-backward (dt/db conn) "Esporte")
