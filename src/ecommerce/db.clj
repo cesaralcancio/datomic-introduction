@@ -161,10 +161,10 @@
 
 
 (defn adiciona-produtos! [conn produtos]
-  @(d/transact conn produtos))
+  (d/transact conn produtos))
 
 (defn adiciona-categorias! [conn categorias]
-  @(d/transact conn categorias))
+  (d/transact conn categorias))
 
 ; relacionar individualmente
 ;(d/transact conn [[:db/add
@@ -216,5 +216,21 @@
          [?categoria :categoria/nome ?nome-categoria]
          [?produto :produto/categoria ?categoria]
          ] db nome-categoria))
+
+(defn resumo-dos-produtos [db]
+  (d/q '[:find (min ?preco) (max ?preco) (count ?preco)
+         :keys minimo maximo total
+         :with ?produto
+         :where [?produto :produto/preco ?preco]]
+       db))
+
+(defn resumo-dos-produtos-por-categoria [db]
+  (d/q '[:find ?categoria-nome (min ?preco) (max ?preco) (count ?preco)
+         :keys categoria minimo maximo total
+         :with ?produto
+         :where [?produto :produto/preco ?preco]
+                [?produto :produto/categoria ?categoria]
+                [?categoria :categoria/nome ?categoria-nome]]
+       db))
 
 (pprint "Carregado DB")

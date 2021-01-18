@@ -12,7 +12,7 @@
 
 (def eletronicos (model/nova-categoria (model/uuid) "Eletronicos"))
 (def esporte (model/nova-categoria (model/uuid) "Esporte"))
-(db/adiciona-categorias! conn [eletronicos esporte])
+@(db/adiciona-categorias! conn [eletronicos esporte])
 (db/todas-categorias-pull (dt/db conn))
 
 (def computador (model/novo-produto (model/uuid) "Computador Novo", "/computador-novo", 2500.00M))
@@ -20,7 +20,7 @@
 (def celular-barato (model/novo-produto (model/uuid) "Celular Barato", "/celular-barato", 500.00M))
 (def tabuleiro-de-xadrez (model/novo-produto (model/uuid) "Tabuleiro de Xadrez", "/tabuleiro-xadrez", 30M))
 
-(db/adiciona-produtos! conn [computador celular celular-barato, tabuleiro-de-xadrez])
+@(db/adiciona-produtos! conn [computador celular celular-barato, tabuleiro-de-xadrez])
 (db/todos-os-produtos-top-top (dt/db conn))
 
 ; relacionar produto com categoria
