@@ -66,6 +66,12 @@
               :db/cardinality :db.cardinality/one
               :db/unique      :db.unique/identity
               }
+             ; Transacoes
+             {
+              :db/ident       :tx-data/ip
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/one
+              }
              ])
 
 (defn cria-schema! [conn]
@@ -155,13 +161,13 @@
          :where
          [?dbid :categoria/id]] db))
 
-
-
-
-
-
-(defn adiciona-produtos! [conn produtos]
-  (d/transact conn produtos))
+(defn adiciona-produtos!
+  ([conn produtos]
+    (d/transact conn produtos))
+  ([conn produtos ip]
+   (let [db-add-ip [:db/add "datomic.tx" :tx-data/ip ip]]
+     (d/transact conn (conj produtos db-add-ip))
+     )))
 
 (defn adiciona-categorias! [conn categorias]
   (d/transact conn categorias))
@@ -229,8 +235,34 @@
          :keys categoria minimo maximo total
          :with ?produto
          :where [?produto :produto/preco ?preco]
-                [?produto :produto/categoria ?categoria]
-                [?categoria :categoria/nome ?categoria-nome]]
+         [?produto :produto/categoria ?categoria]
+         [?categoria :categoria/nome ?categoria-nome]]
        db))
+
+; com duas queries
+(defn todos-os-produtos-maior-preco [db]
+  (let [preco-mais-alto (ffirst (d/q '[:find (max ?preco)
+                                       :where [?produto :produto/preco ?preco]
+                                       ] db))]
+    (d/q '[:find (pull ?produto [*])
+           :in $ ?preco
+           :where [?produto :produto/preco ?preco]]
+         db preco-mais-alto)))
+
+; nested query
+(defn todos-os-produtos-mais-caros [db]
+  (d/q '[:find (pull ?produto [*])
+         :where [(q '[:find (max ?preco)
+                      :where [_ :produto/preco ?preco]
+                      ] $) [[?preco]]]
+         [?produto :produto/preco ?preco]] db))
+
+(defn todos-os-produtos-do-ip [db ip]
+  (d/q '[:find (pull ?produto [*])
+         :in $ ?ip-buscado
+         :where [?transacao :tx-data/ip ?ip-buscado]
+                [?produto :produto/id ?produto-id ?transacao]
+
+         ] db ip))
 
 (pprint "Carregado DB")
