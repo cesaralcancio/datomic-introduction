@@ -193,11 +193,11 @@
          :in $ ?id
          ] db db-id))
 
-(defn um-produto-melhor [db db-id]
+(defn um-produto [db db-id]
   (d/pull db '[*] db-id))
 
-(defn um-produto-por-produto-uuid [db produto-uuid]
-  (d/pull db '[*] [:produto/id produto-uuid]))
+(s/defn um-produto :- model/Produto [db produto-uuid :- java.util.UUID]
+  (datomic-para-entidade (d/pull db '[*] [:produto/id produto-uuid])))
 
 
 

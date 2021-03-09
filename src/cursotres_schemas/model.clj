@@ -5,10 +5,10 @@
                 :categoria/nome s/Str})
 
 (def Produto
-  {:produto/nome                           s/Str
-   :produto/slug                           s/Str
-   :produto/preco                          BigDecimal
-   :produto/id                             java.util.UUID
+  {:produto/id                             java.util.UUID
+   (s/optional-key :produto/nome)          s/Str
+   (s/optional-key :produto/slug)          s/Str
+   (s/optional-key :produto/preco)         BigDecimal
    (s/optional-key :produto/categoria)     Categoria
    (s/optional-key :produto/palavra-chave) [s/Str]})
 
