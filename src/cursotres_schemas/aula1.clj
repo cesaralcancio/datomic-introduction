@@ -2,21 +2,26 @@
   (:use clojure.pprint)
   (:require [cursotres-schemas.db :as db]
             [cursotres-schemas.model :as model]
-            [datomic.api :as dt]))
+            [datomic.api :as dt]
+            [schema.core :as s]))
+
+(s/set-fn-validation! false)
+(s/set-fn-validation! true)
 
 (db/apaga-banco!)
 (def conn (db/abre-conexao!))
 (db/cria-schema! conn)
-(db/cria-dados-de-exemplo! conn)
 
-(def db (dt/db conn))
+(defn testa-schema []
+  (def eletronicos (model/nova-categoria (model/uuid) "Eletronicos"))
+  (def computador (model/novo-produto (model/uuid) "Computador Novo", "/computador-novo", 2500.00M))
 
-; trazer dois
-(pprint (count (db/todos-os-produtos-por-preco db 1000)))
-
-; trazer um
-(pprint (count (db/todos-os-produtos-por-preco db 5000)))
+  (s/validate model/Categoria eletronicos)
+  (s/validate model/Produto computador)
+  (s/validate model/Produto (assoc computador :produto/categoria eletronicos)))
+(testa-schema)
 
 ; testando
-(db/todos-os-produtos-top-top (dt/db conn))
-(db/todas-categorias-pull (dt/db conn))
+(db/cria-dados-de-exemplo! conn)
+(db/todos-os-produtos (dt/db conn))
+(db/todas-categorias (dt/db conn))

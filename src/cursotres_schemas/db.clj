@@ -1,7 +1,8 @@
 (ns cursotres-schemas.db
   (:use clojure.pprint)
   (:require [datomic.api :as d]
-            [cursotres-schemas.model :as model]))
+            [cursotres-schemas.model :as model]
+            [schema.core :as s]))
 
 (pprint (def db-uri "datomic:dev://localhost:4334/hello"))
 
@@ -87,12 +88,51 @@
 ; #datom [73 40 23 13194139534312 true]
 ; #datom [73 41 35 13194139534312 true]
 ; #datom [73 62 "O caminho para acessar esse produto via http 13194139534312 true]
+(defn dissoc-db-id [entidade]
+  (if (map? entidade) (dissoc entidade :db/id) entidade))
+
+(defn datomic-para-entidade [entidades]
+  (clojure.walk/prewalk dissoc-db-id entidades))
 
 
+
+
+
+; TODOS OS PRODUTOS
 (defn todos-os-produtos [db]
   (d/q '[:find ?entidade ?valor
          :where [?entidade :produto/slug ?valor]] db))
 
+(defn todos-os-produtos [db]
+  (d/q '[:find (pull ?produto [:produto/nome :produto/slug :produto/preco])
+         :where [?produto :produto/nome]] db))
+
+(s/defn todos-os-produtos :- [model/Produto] [db]
+  (datomic-para-entidade (d/q '[:find [(pull ?produto [* {:produto/categoria [*]}]) ...]
+                                :where [?produto :produto/nome]] db)))
+
+
+
+
+
+; TODAS AS CATEGORIAS
+(defn todas-categorias [db]
+  (d/q '[:find ?id ?nome
+         :keys categoria/id categoria/nome
+         :where
+         [?seila :categoria/id ?id]
+         [?seila :categoria/nome ?nome]] db))
+
+(s/defn todas-categorias :- [model/Categoria] [db]
+  (datomic-para-entidade (d/q '[:find [(pull ?dbid [*]) ...]
+                                :where
+                                [?dbid :categoria/id]] db)))
+
+
+
+
+
+; TODOS OS PRODUTOS POR....
 (defn todos-os-produtos-por-slug-fixo [db]
   (d/q '[:find ?entidade
          :where [?entidade :produto/slug "/computador-novo"]] db))
@@ -101,26 +141,6 @@
   (d/q '[:find ?entidade
          :in $ ?slug
          :where [?entidade :produto/slug ?slug]] db slug))
-
-; se nao for usar pode usar um underscore _
-(defn todos-os-slugs [db]
-  (d/q '[:find ?slug
-         :where [_ :produto/slug ?slug]] db))
-
-(defn todos-os-precos [db]
-  (d/q '[:find ?nome ?preco
-         :keys produto/nome produto/preco
-         :where
-         [?produto :produto/preco ?preco]
-         [?produto :produto/nome ?nome]] db))
-
-(defn todos-os-produtos-top [db]
-  (d/q '[:find (pull ?produto [:produto/nome :produto/slug :produto/preco])
-         :where [?produto :produto/nome]] db))
-
-(defn todos-os-produtos-top-top [db]
-  (d/q '[:find (pull ?produto [*])
-         :where [?produto :produto/nome]] db))
 
 ; em geral vamo deixar as condicoes da mais restritiva para a menos restritiva
 ; o plano de acao somos nos quem tomamos...
@@ -139,6 +159,35 @@
          :where [?produto :produto/palavra-chave ?palavra-chave]]
        db palavra-chave-buscada))
 
+
+
+
+
+
+; TODOS OS SLUGS
+; se nao for usar pode usar um underscore _
+(defn todos-os-slugs [db]
+  (d/q '[:find ?slug
+         :where [_ :produto/slug ?slug]] db))
+
+
+
+
+
+
+; TODOS OS PRECOS
+(defn todos-os-precos [db]
+  (d/q '[:find ?nome ?preco
+         :keys produto/nome produto/preco
+         :where
+         [?produto :produto/preco ?preco]
+         [?produto :produto/nome ?nome]] db))
+
+
+
+
+
+; UM PRODUTO....
 (defn um-produto [db db-id]
   (d/q '[:find (pull ?id [*])
          :in $ ?id
@@ -150,27 +199,21 @@
 (defn um-produto-por-produto-uuid [db produto-uuid]
   (d/pull db '[*] [:produto/id produto-uuid]))
 
-(defn todas-categorias [db]
-  (d/q '[:find ?id ?nome
-         :keys categoria/id categoria/nome
-         :where
-         [?seila :categoria/id ?id]
-         [?seila :categoria/nome ?nome]] db))
 
-(defn todas-categorias-pull [db]
-  (d/q '[:find (pull ?dbid [*])
-         :where
-         [?dbid :categoria/id]] db))
 
-(defn adiciona-produtos!
-  ([conn produtos]
-    (d/transact conn produtos))
-  ([conn produtos ip]
+
+
+
+; ADICIONA...
+(s/defn adiciona-produtos!
+  ([conn produtos :- [model/Produto]]
+   (d/transact conn produtos))
+  ([conn produtos :- [model/Produto] ip]
    (let [db-add-ip [:db/add "datomic.tx" :tx-data/ip ip]]
      (d/transact conn (conj produtos db-add-ip))
      )))
 
-(defn adiciona-categorias! [conn categorias]
+(s/defn adiciona-categorias! [conn categorias :- [model/Categoria]]
   (d/transact conn categorias))
 
 ; relacionar individualmente
@@ -184,6 +227,12 @@
 ;                   :produto/categoria
 ;                   [:categoria/id (:categoria/id esporte)]]])
 
+
+
+
+
+
+; ATRIBUI CATEGORIAS
 ; se o produt n tem ID da erro
 (defn atribui-categorias! [conn produtos categoria]
   (let [para-transacionar (reduce (fn [db-adds produto]
@@ -262,7 +311,7 @@
   (d/q '[:find (pull ?produto [*])
          :in $ ?ip-buscado
          :where [?transacao :tx-data/ip ?ip-buscado]
-                [?produto :produto/id ?produto-id ?transacao]
+         [?produto :produto/id ?produto-id ?transacao]
 
          ] db ip))
 
@@ -272,7 +321,7 @@
   (def esporte (model/nova-categoria (model/uuid) "Esporte"))
 
   @(adiciona-categorias! conn [eletronicos esporte])
-  (todas-categorias-pull (d/db conn))
+  (todas-categorias (d/db conn))
 
   (def computador (model/novo-produto (model/uuid) "Computador Novo", "/computador-novo", 2500.00M))
   (def celular (model/novo-produto (model/uuid) "Celular Caro", "/celular", 15000.99M))
@@ -280,7 +329,7 @@
   (def tabuleiro-de-xadrez (model/novo-produto (model/uuid) "Tabuleiro de Xadrez", "/tabuleiro-xadrez", 30M))
 
   @(adiciona-produtos! conn [computador celular celular-barato, tabuleiro-de-xadrez] "192.168.0.1")
-  (todos-os-produtos-top-top (d/db conn))
+  (todos-os-produtos (d/db conn))
 
   ; relacionar produto com categoria
   (atribui-categorias! conn [computador celular celular-barato, tabuleiro-de-xadrez] eletronicos)
