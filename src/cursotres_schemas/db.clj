@@ -377,4 +377,4 @@
         produto (datomic-para-entidade resultado)]
     (if (:produto/id produto) produto)))
 
-(pprint "Carregado DB!!!")
+(pprint "Carregado DB!!!!!")
