@@ -25,6 +25,7 @@
 (db/um-produto (dt/db conn) (model/uuid))
 
 (def produtos-com-estoque (db/todos-os-produtos-com-estoque (dt/db conn)))
+(do produtos-com-estoque)
 
 (db/um-produto-com-estoque (dt/db conn) (:produto/id (second produtos)))
 (db/um-produto-com-estoque (dt/db conn) (:produto/id (first produtos-com-estoque)))

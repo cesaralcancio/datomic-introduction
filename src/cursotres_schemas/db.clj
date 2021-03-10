@@ -350,23 +350,30 @@
   (atribui-categorias! conn [computador celular celular-barato, tabuleiro-de-xadrez] eletronicos)
   (atribui-categorias! conn [tabuleiro-de-xadrez] esporte))
 
+(def regras
+  '[
+    [(estoque ?produto ?estoque)
+     [?produto :produto/estoque ?estoque]]
+    ])
+
 ; IMPORTANTE the "[]" for the :find is to remove each tuple inside a array AND bring just one record.
 ; And the "..." is to bring all records because when we add "[]" we are removing the tuple from the array but it is also bringing just one record.
 (s/defn todos-os-produtos-com-estoque :- [model/Produto] [db]
   (datomic-para-entidade
     (d/q '[:find [(pull ?produto [* {:produto/categoria [*]}]) ...]
-           :where [?produto :produto/estoque ?estoque]
+           :in $ %
+           :where (estoque ?produto ?estoque)
            [(> ?estoque 0)]
-           ] db)
+           ] db regras)
     ))
 
 (s/defn um-produto-com-estoque :- (s/maybe model/Produto) [db produto-uuid :- java.util.UUID]
   (let [query '[:find (pull ?produto [* {:produto/categoria [*]}]) .
-                :in $ ?id
+                :in $ % ?id
                 :where [?produto :produto/id ?id]
-                [?produto :produto/estoque ?estoque]
+                (estoque ?produto ?estoque)
                 [(> ?estoque 0)]]
-        resultado (d/q query db produto-uuid)
+        resultado (d/q query db regras produto-uuid)
         produto (datomic-para-entidade resultado)]
     (if (:produto/id produto) produto)))
 
