@@ -196,8 +196,17 @@
 (defn um-produto [db db-id]
   (d/pull db '[*] db-id))
 
-(s/defn um-produto :- model/Produto [db produto-uuid :- java.util.UUID]
-  (datomic-para-entidade (d/pull db '[*] [:produto/id produto-uuid])))
+(s/defn um-produto :- (s/maybe model/Produto) [db produto-uuid :- java.util.UUID]
+  (let [resultado (d/pull db '[* {:produto/categoria [*]}] [:produto/id produto-uuid])
+        produto (datomic-para-entidade resultado)]
+    (if (:produto/id produto) produto)
+    ))
+
+(s/defn um-produto! :- model/Produto [db produto-uuid :- java.util.UUID]
+  (let [produto (um-produto db produto-uuid)]
+    (if (nil? produto)
+      (throw (ex-info "Nao encontrou a entidade" {:type :errors/not-found :id produto-uuid}))
+      produto)))
 
 
 
