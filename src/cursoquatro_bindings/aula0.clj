@@ -1,7 +1,7 @@
 (ns cursoquatro_bindings.aula0
   (:use clojure.pprint)
-  (:require [cursotres-schemas.db :as db]
-            [cursotres-schemas.model :as model]
+  (:require [cursoquatro_bindings.db :as db]
+            [cursoquatro_bindings.model :as model]
             [datomic.api :as dt]
             [schema.core :as s]
             [datomic.api :as d]))

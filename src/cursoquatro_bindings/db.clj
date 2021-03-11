@@ -1,7 +1,7 @@
 (ns cursoquatro_bindings.db
   (:use clojure.pprint)
   (:require [datomic.api :as d]
-            [cursotres-schemas.model :as model]
+            [cursoquatro_bindings.model :as model]
             [schema.core :as s]))
 
 (pprint (def db-uri "datomic:dev://localhost:4334/hello"))
@@ -365,6 +365,10 @@
     [(pode-vender? ?produto ?estoque)
      (estoque ?produto ?estoque)
      [(> ?estoque 0)]]
+    [(produto-na-categoria ?produto ?nome-da-categoria)
+     [?categoria :categoria/nome ?nome-da-categoria]
+     [?produto :produto/nome]                               ; nao precisa desse, porque todo produto com categoria ja eh um produto
+     [?produto :produto/categoria ?categoria]]
     ])
 
 ; IMPORTANTE the "[]" for the :find is to remove each tuple inside a array AND bring just one record.
@@ -385,5 +389,29 @@
         resultado (d/q query db regras produto-uuid)
         produto (datomic-para-entidade resultado)]
     (if (:produto/id produto) produto)))
+
+
+(s/defn todos-os-produtos-nas-categorias [db categorias :- [s/Str]]
+  (datomic-para-entidade
+    (let [query '[:find [(pull ?produto [* {:produto/categoria [*]}]) ...]
+                  :in $ % [?nome-da-categoria ...]
+                  :where
+                  (produto-na-categoria ?produto ?nome-da-categoria)
+                  ]
+          ]
+      (d/q query db regras categorias)))
+  )
+
+(s/defn todos-os-produtos-nas-categorias-e-digital [db categorias :- [s/Str] digital? :- s/Bool]
+  (datomic-para-entidade
+    (let [query '[:find [(pull ?produto [* {:produto/categoria [*]}]) ...]
+                  :in $ % [?nome-da-categoria ...] ?digi
+                  :where
+                  (produto-na-categoria ?produto ?nome-da-categoria)
+                  [?produto :produto/digital ?digi]
+                  ]
+          ]
+      (d/q query db regras categorias digital?)))
+  )
 
 (pprint "Carregado DB!")
