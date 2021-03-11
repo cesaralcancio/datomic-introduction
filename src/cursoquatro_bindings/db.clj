@@ -1,4 +1,4 @@
-(ns cursotres-schemas.db
+(ns cursoquatro_bindings.db
   (:use clojure.pprint)
   (:require [datomic.api :as d]
             [cursotres-schemas.model :as model]

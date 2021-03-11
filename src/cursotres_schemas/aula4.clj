@@ -31,3 +31,12 @@
 
 (db/um-produto-vendavel (dt/db conn) (:produto/id (first produtos)))
 (db/um-produto-vendavel (dt/db conn) (:produto/id (second produtos)))
+
+(defn verifica-se-pode-vender [produto]
+  (println "")
+  (println "Analisando produto...")
+  (println (:produto/estoque produto))
+  (println (:produto/digital produto))
+  (pprint (db/um-produto-vendavel (dt/db conn) (:produto/id produto)))
+  )
+(map verifica-se-pode-vender produtos)
