@@ -17,6 +17,7 @@
 
 (def produtos (db/todos-os-produtos (dt/db conn)))
 (def categorias (db/todas-categorias (dt/db conn)))
+
 (do produtos)
 (pprint produtos)
 (pprint (first produtos))
@@ -24,8 +25,9 @@
 (db/um-produto! (dt/db conn) (:produto/id (first produtos)))
 (db/um-produto (dt/db conn) (model/uuid))
 
-(def produtos-com-estoque (db/todos-os-produtos-com-estoque (dt/db conn)))
+; com estoque
+(def produtos-com-estoque (db/todos-os-produtos-vendaveis (dt/db conn)))
 (do produtos-com-estoque)
 
-(db/um-produto-com-estoque (dt/db conn) (:produto/id (second produtos)))
-(db/um-produto-com-estoque (dt/db conn) (:produto/id (first produtos-com-estoque)))
+(db/um-produto-vendavel (dt/db conn) (:produto/id (first produtos)))
+(db/um-produto-vendavel (dt/db conn) (:produto/id (second produtos)))

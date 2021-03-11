@@ -62,6 +62,10 @@
               :db/cardinality :db.cardinality/one
               :db/doc         "Quantidade em estoque"
               }
+             {:db/ident       :produto/digital
+              :db/valueType   :db.type/boolean
+              :db/cardinality :db.cardinality/one
+              :db/doc         "Se o produto e digital"}
              ; Categorias
              {
               :db/ident       :categoria/nome
@@ -342,23 +346,27 @@
   (def celular (model/novo-produto (model/uuid) "Celular Caro", "/celular", 15000.99M))
   (def celular-barato (model/novo-produto (model/uuid) "Celular Barato", "/celular-barato", 500.00M))
   (def tabuleiro-de-xadrez (model/novo-produto (model/uuid) "Tabuleiro de Xadrez", "/tabuleiro-xadrez", 30M 5))
+  (def jogo-online (assoc (model/novo-produto (model/uuid) "Jogo Online", "/jogo-online", 20M) :produto/digital true))
 
-  @(adiciona-produtos! conn [computador celular celular-barato, tabuleiro-de-xadrez] "192.168.0.1")
+  @(adiciona-produtos! conn [computador celular celular-barato, tabuleiro-de-xadrez, jogo-online] "192.168.0.1")
   (todos-os-produtos (d/db conn))
 
   ; relacionar produto com categoria
-  (atribui-categorias! conn [computador celular celular-barato, tabuleiro-de-xadrez] eletronicos)
+  (atribui-categorias! conn [computador celular celular-barato, tabuleiro-de-xadrez, jogo-online] eletronicos)
   (atribui-categorias! conn [tabuleiro-de-xadrez] esporte))
 
 (def regras
   '[
     [(estoque ?produto ?estoque)
      [?produto :produto/estoque ?estoque]]
+    [(estoque ?produto ?estoque)
+     [?produto :produto/digital true]
+     [(ground 100) ?estoque]]
     ])
 
 ; IMPORTANTE the "[]" for the :find is to remove each tuple inside a array AND bring just one record.
 ; And the "..." is to bring all records because when we add "[]" we are removing the tuple from the array but it is also bringing just one record.
-(s/defn todos-os-produtos-com-estoque :- [model/Produto] [db]
+(s/defn todos-os-produtos-vendaveis :- [model/Produto] [db]
   (datomic-para-entidade
     (d/q '[:find [(pull ?produto [* {:produto/categoria [*]}]) ...]
            :in $ %
@@ -367,7 +375,7 @@
            ] db regras)
     ))
 
-(s/defn um-produto-com-estoque :- (s/maybe model/Produto) [db produto-uuid :- java.util.UUID]
+(s/defn um-produto-vendavel :- (s/maybe model/Produto) [db produto-uuid :- java.util.UUID]
   (let [query '[:find (pull ?produto [* {:produto/categoria [*]}]) .
                 :in $ % ?id
                 :where [?produto :produto/id ?id]

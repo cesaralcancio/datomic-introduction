@@ -11,7 +11,8 @@
    (s/optional-key :produto/preco)         BigDecimal
    (s/optional-key :produto/categoria)     Categoria
    (s/optional-key :produto/palavra-chave) [s/Str]
-   (s/optional-key :produto/estoque)       s/Num})
+   (s/optional-key :produto/estoque)       s/Num
+   (s/optional-key :produto/digital)       s/Bool})
 
 
 (defn uuid [] (java.util.UUID/randomUUID))
@@ -26,7 +27,8 @@
     :produto/nome    nome
     :produto/slug    slug
     :produto/preco   preco
-    :produto/estoque estoque}))
+    :produto/estoque estoque
+    :produto/digital false}))
 
 (defn nova-categoria
   [uuid nome]
