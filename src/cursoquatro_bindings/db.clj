@@ -2,7 +2,9 @@
   (:use clojure.pprint)
   (:require [datomic.api :as d]
             [cursoquatro_bindings.model :as model]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [clojure.set :as cset]
+            [datomic.api :as dt]))
 
 (pprint (def db-uri "datomic:dev://localhost:4334/hello"))
 
@@ -413,5 +415,18 @@
           ]
       (d/q query db regras categorias digital?)))
   )
+
+(s/defn atualiza-preco
+  [conn produto-id :- java.util.UUID preco-antigo :- BigDecimal preco-novo :- BigDecimal]
+  (d/transact conn [[:db/cas [:produto/id produto-id] :produto/preco preco-antigo preco-novo]]))
+
+(s/defn atualiza-produto!
+  [conn antigo :- model/Produto a-atualizar :- model/Produto]
+  (let [produto-id (:produto/id antigo)
+        atributos (cset/intersection (set (keys antigo)) (set (keys a-atualizar)))
+        atributos (disj atributos :produto/id)
+        anonymous-func (fn [attr] [:db/cas [:produto/id produto-id] attr (get antigo attr) (get a-atualizar attr)])
+        db-cases (map anonymous-func atributos)]
+    (d/transact conn db-cases)))
 
 (pprint "Carregado DB!")
