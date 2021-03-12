@@ -3,8 +3,7 @@
   (:require [cursoquatro_bindings.db :as db]
             [cursoquatro_bindings.model :as model]
             [datomic.api :as dt]
-            [schema.core :as s]
-            [datomic.api :as d]))
+            [schema.core :as s]))
 
 (s/set-fn-validation! false)
 (s/set-fn-validation! true)

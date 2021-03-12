@@ -68,6 +68,27 @@
               :db/valueType   :db.type/boolean
               :db/cardinality :db.cardinality/one
               :db/doc         "Se o produto e digital"}
+
+             {:db/ident       :produto/variacao
+              :db/valueType   :db.type/ref
+              :db/cardinality :db.cardinality/many
+              :db/doc         "lista de variacao que eu nao sei o que é"}
+
+             ; Variacao
+             {:db/ident       :variacao/id
+              :db/valueType   :db.type/uuid
+              :db/cardinality :db.cardinality/one
+              :db/unique      :db.unique/identity
+              }
+             {:db/ident       :variacao/nome
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/one
+              }
+             {:db/ident       :variacao/preco
+              :db/valueType   :db.type/bigdec
+              :db/cardinality :db.cardinality/one
+              }
+
              ; Categorias
              {
               :db/ident       :categoria/nome
