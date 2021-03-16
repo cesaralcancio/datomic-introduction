@@ -72,6 +72,7 @@
              {:db/ident       :produto/variacao
               :db/valueType   :db.type/ref
               :db/cardinality :db.cardinality/many
+              :db/isComponent true
               :db/doc         "lista de variacao que eu nao sei o que é"}
 
              ; Variacao
@@ -451,3 +452,26 @@
     (d/transact conn db-cases)))
 
 (pprint "Carregado DB!")
+
+(s/defn adiciona-variacao!
+  [conn produto-id :- java.util.UUID variacao-nome :- s/Str variacao-preco :- s/Num]
+  (let []
+    (d/transact conn [{
+                       :db/id          "id-temporario"
+                       :variacao/nome  variacao-nome
+                       :variacao/preco variacao-preco
+                       :variacao/id    (model/uuid)
+                       }
+                      {:produto/id       produto-id
+                       :produto/variacao "id-temporario"}])
+    )
+  )
+
+(defn total-de-prpdutos
+  [db]
+  (d/q '[:find [(count ?produto)]
+         :where [?produto :produto/nome]] db))
+
+(s/defn remove-produto!
+  [conn produto-id :- java.util.UUID]
+  (d/transact conn [[:db/retractEntity [:produto/id produto-id]]]))
