@@ -480,6 +480,7 @@
   [conn produto-id :- java.util.UUID]
   (d/transact conn [[:db/retractEntity [:produto/id produto-id]]]))
 
+; nao tem atomicidade
 (defn visualizacoes [db produto-id]
   (let [quantidade (d/q '[:find ?visualizacoes .
                           :in $ ?id
@@ -496,3 +497,12 @@
     (d/transact conn [{:produto/id            produto-id
                        :produto/visualizacoes novo-valor
                        }])))
+; nao tem atomicidade
+
+
+; agora com atomicidade
+(s/defn visualizacao!
+  [conn produto-id :- java.util.UUID]
+  (println "Com atomicidade")
+  (d/transact conn [[:incrementa-visualizacao produto-id]])
+  )
