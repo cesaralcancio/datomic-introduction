@@ -68,13 +68,17 @@
               :db/valueType   :db.type/boolean
               :db/cardinality :db.cardinality/one
               :db/doc         "Se o produto e digital"}
-
              {:db/ident       :produto/variacao
               :db/valueType   :db.type/ref
               :db/cardinality :db.cardinality/many
               :db/isComponent true
               :db/doc         "lista de variacao que eu nao sei o que é"}
-
+             {:db/ident       :produto/visualizacoes
+              :db/valueType   :db.type/long
+              :db/cardinality :db.cardinality/one
+              :db/noHistory   true
+              :db/doc         "Quantas vezes o produto foi acessado"
+              }
              ; Variacao
              {:db/ident       :variacao/id
               :db/valueType   :db.type/uuid
@@ -475,3 +479,20 @@
 (s/defn remove-produto!
   [conn produto-id :- java.util.UUID]
   (d/transact conn [[:db/retractEntity [:produto/id produto-id]]]))
+
+(defn visualizacoes [db produto-id]
+  (let [quantidade (d/q '[:find ?visualizacoes .
+                          :in $ ?id
+                          :where
+                          [?produto :produto/id ?id]
+                          [?produto :produto/visualizacoes ?visualizacoes]]
+                        db produto-id)]
+    (or quantidade 0)))
+
+(s/defn visualizacao!
+  [conn produto-id :- java.util.UUID]
+  (let [valor-atual (visualizacoes (dt/db conn) produto-id)
+        novo-valor (inc valor-atual)]
+    (d/transact conn [{:produto/id            produto-id
+                       :produto/visualizacoes novo-valor
+                       }])))

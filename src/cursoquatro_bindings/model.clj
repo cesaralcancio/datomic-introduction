@@ -17,7 +17,8 @@
    (s/optional-key :produto/palavra-chave) [s/Str]
    (s/optional-key :produto/estoque)       s/Num
    (s/optional-key :produto/digital)       s/Bool
-   (s/optional-key :produto/variacao)      [Variacao]})
+   (s/optional-key :produto/variacao)      [Variacao]
+   (s/optional-key :produto/visualizacoes) s/Num})
 
 
 (defn uuid [] (java.util.UUID/randomUUID))
