@@ -82,7 +82,7 @@
       produto)))
 
 ; ADICIONA...
-(s/defn adiciona-produtos!
+(s/defn adiciona-ou-atualiza-produtos!
   ([conn produtos :- [model/Produto]]
    (d/transact conn produtos))
   ([conn produtos :- [model/Produto] ip]

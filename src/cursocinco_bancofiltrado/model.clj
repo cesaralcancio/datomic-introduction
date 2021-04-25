@@ -20,6 +20,11 @@
    (s/optional-key :produto/variacao)      [Variacao]
    (s/optional-key :produto/visualizacoes) s/Num})
 
+(def Venda
+  {:venda/id                          java.util.UUID
+   (s/optional-key :venda/produto)    Produto
+   (s/optional-key :venda/quantidade) s/Int})
+
 
 (defn uuid [] (java.util.UUID/randomUUID))
 

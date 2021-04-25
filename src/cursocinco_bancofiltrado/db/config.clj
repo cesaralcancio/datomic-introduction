@@ -105,6 +105,21 @@
               :db/cardinality :db.cardinality/one
               :db/unique      :db.unique/identity
               }
+             ; Venda
+             {
+              :db/ident       :venda/id
+              :db/valueType   :db.type/uuid
+              :db/cardinality :db.cardinality/one
+              :db/unique      :db.unique/identity
+              }
+             {
+              :db/ident       :venda/produto
+              :db/valueType   :db.type/ref
+              :db/cardinality :db.cardinality/one}
+             {
+              :db/ident       :venda/quantidade
+              :db/valueType   :db.type/long
+              :db/cardinality :db.cardinality/one}
              ; Transacoes
              {
               :db/ident       :tx-data/ip
@@ -130,7 +145,7 @@
   (def tabuleiro-de-xadrez (model/novo-produto (model/uuid) "Tabuleiro de Xadrez", "/tabuleiro-xadrez", 30M 5))
   (def jogo-online (assoc (model/novo-produto (model/uuid) "Jogo Online", "/jogo-online", 20M) :produto/digital true))
 
-  @(db.produto/adiciona-produtos! conn [computador celular celular-barato, tabuleiro-de-xadrez, jogo-online] "192.168.0.1")
+  @(db.produto/adiciona-ou-atualiza-produtos! conn [computador celular celular-barato, tabuleiro-de-xadrez, jogo-online] "192.168.0.1")
   (db.produto/todos-os-produtos (d/db conn))
 
   ; relacionar produto com categoria
