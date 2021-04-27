@@ -36,6 +36,8 @@
 
 (pprint (db.venda/canceladas (d/db conn)))
 
+(pprint (db.venda/historico (d/db conn) venda-id))
+
 (pprint (:produto/preco primeiro))
 
 (pprint @(db.produto/adiciona-ou-altera! conn [{:produto/id    (:produto/id primeiro)

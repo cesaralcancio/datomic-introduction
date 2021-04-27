@@ -73,3 +73,30 @@
               [?trx :db/txInstant ?instante]
               ] (d/history db) venda-id)
        (sort-by first)))
+
+; Refazer os metodos de cancelado agora com o status/situacao
+
+(defn cancela! [conn venda-id]
+  (altera-status! conn venda-id "cancelada"))
+
+(defn todas-nao-canceladas [db]
+  (db.entidade/datomic-para-entidade
+    (d/q '[:find [(pull ?venda [*]) ...]
+           :where [?venda :venda/id]
+           [?venda :venda/situacao ?situacao]
+           [(not= ?situacao "cancelada")]]
+         db)))
+
+(defn todas-inclusive-canceladas [db]
+  (db.entidade/datomic-para-entidade
+    (d/q '[:find [(pull ?venda [*]) ...]
+           :where [?venda :venda/id ?id]]
+         db)))
+
+(defn canceladas [db]
+  (db.entidade/datomic-para-entidade
+    (d/q '[:find [(pull ?venda [*]) ...]
+           :where [?venda :venda/id]
+           [?venda :venda/situacao ?situacao]
+           [(= ?situacao "cancelada")]]
+         db)))
