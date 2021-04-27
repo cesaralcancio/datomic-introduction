@@ -52,5 +52,5 @@
 (println "Instante")
 (pprint instante)
 
-(def produto-alterado @(db.produto/adiciona-ou-atualiza-produtos! conn [{:produto/id    (:produto/id primeiro)
+(def produto-alterado @(db.produto/adiciona-ou-altera! conn [{:produto/id               (:produto/id primeiro)
                                                                          :produto/preco 100M}]))

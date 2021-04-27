@@ -82,7 +82,7 @@
       produto)))
 
 ; ADICIONA...
-(s/defn adiciona-ou-atualiza-produtos!
+(s/defn adiciona-ou-altera!
   ([conn produtos :- [model/Produto]]
    (d/transact conn produtos))
   ([conn produtos :- [model/Produto] ip]
@@ -257,3 +257,13 @@
   [conn produto-id :- java.util.UUID]
   (println "Com atomicidade")
   (d/transact conn [[:incrementa-visualizacao produto-id]]))
+
+(defn historico-de-preco [db produto-id]
+  (->> (d/q '[:find ?instante ?preco
+              :in $ ?id
+              :where
+              [?produto :produto/id ?id]
+              [?produto :produto/preco ?preco ?tx true]
+              [?tx :db/txInstant ?instante]]
+            (d/history db) produto-id)
+       (sort-by first)))
