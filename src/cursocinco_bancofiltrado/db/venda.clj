@@ -40,6 +40,21 @@
 
 (defn todas-nao-canceladas [db]
   (db.entidade/datomic-para-entidade
-    (d/q '[:find (pull ?venda [*])
-           :where [?venda :venda/id]]
+    (d/q '[:find ?id ?quantidade
+           :where [?venda :venda/id ?id]
+           [?venda :venda/quantidade ?quantidade]]
          db)))
+
+(defn todas-inclusive-canceladas [db]
+  (db.entidade/datomic-para-entidade
+    (d/q '[:find ?id ?quantidade
+           :where [?venda :venda/id ?id ?trx true]
+           [?venda :venda/quantidade ?quantidade ?trx true]]
+         (d/history db))))
+
+(defn canceladas [db]
+  (db.entidade/datomic-para-entidade
+    (d/q '[:find ?id ?quantidade
+           :where [?venda :venda/id ?id ?trx false]
+           [?venda :venda/quantidade ?quantidade ?trx false]]
+         (d/history db))))

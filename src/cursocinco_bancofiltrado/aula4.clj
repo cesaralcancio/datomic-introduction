@@ -28,6 +28,10 @@
   (def venda-id2 venda-id2)
   )
 
+(pprint @(db.venda/cancela! conn venda-id))
+
 (pprint (db.venda/todas-nao-canceladas (d/db conn)))
 
-(pprint @(db.venda/cancela! conn venda-id))
+(pprint (db.venda/todas-inclusive-canceladas (d/db conn)))
+
+(pprint (db.venda/canceladas (d/db conn)))
