@@ -120,6 +120,9 @@
               :db/ident       :venda/quantidade
               :db/valueType   :db.type/long
               :db/cardinality :db.cardinality/one}
+             {:db/ident       :venda/situacao
+              :db/valueType   :db.type/string
+              :db/cardinality :db.cardinality/one}
              ; Transacoes
              {
               :db/ident       :tx-data/ip

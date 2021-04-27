@@ -14,6 +14,7 @@
                                   :venda/id         venda-id
                                   :venda/produto    [:produto/id produto-id]
                                   :venda/quantidade quantidade
+                                  :venda/situacao   "nova"
                                   }])]
     [return venda-id]))
 
@@ -40,7 +41,7 @@
 
 (defn todas-nao-canceladas [db]
   (db.entidade/datomic-para-entidade
-    (d/q '[:find ?id ?quantidade
+    (d/q '[:find (pull ?venda [*])
            :where [?venda :venda/id ?id]
            [?venda :venda/quantidade ?quantidade]]
          db)))
@@ -58,3 +59,17 @@
            :where [?venda :venda/id ?id ?trx false]
            [?venda :venda/quantidade ?quantidade ?trx false]]
          (d/history db))))
+
+(defn altera-status! [conn venda-id status]
+  (d/transact conn [{:venda/id       venda-id
+                     :venda/situacao status}]))
+
+(defn historico [db venda-id]
+  (->> (d/q '[:find ?instante ?situacao
+              :in $ ?id
+              :where
+              [?venda :venda/id ?id]
+              [?venda :venda/situacao ?situacao ?trx true]
+              [?trx :db/txInstant ?instante]
+              ] (d/history db) venda-id)
+       (sort-by first)))
