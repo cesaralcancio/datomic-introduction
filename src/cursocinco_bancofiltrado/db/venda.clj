@@ -34,3 +34,12 @@
                      [(* ?preco ?quantidade) ?preco-por-quantidade]] (d/as-of db instante) venda-id)]
     (println "custo em " instante)
     custo))
+
+(defn cancela! [conn venda-id]
+  (d/transact conn [[:db/retractEntity [:venda/id venda-id]]]))
+
+(defn todas-nao-canceladas [db]
+  (db.entidade/datomic-para-entidade
+    (d/q '[:find (pull ?venda [*])
+           :where [?venda :venda/id]]
+         db)))
