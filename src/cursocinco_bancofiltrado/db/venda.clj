@@ -100,3 +100,15 @@
            [?venda :venda/situacao ?situacao]
            [(= ?situacao "cancelada")]]
          db)))
+
+; Aqui eh um pouco trick
+; Eu quero todas as vendas (independene do since) e depois todos os historico dependendo do since
+(defn historico-geral [db desde-instante]
+  (let [filtrado (d/since db desde-instante)]
+    (->> (d/q '[:find ?instante ?situacao ?id
+                :in $ $filtrado
+                :where [$ ?venda :venda/id ?id ?tx]
+                [$filtrado ?venda :venda/situacao ?situacao]
+                [$filtrado ?tx :db/txInstant ?instante]]
+              db filtrado)
+         (sort-by first))))

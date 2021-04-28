@@ -42,3 +42,7 @@
 (pprint (db.venda/historico (d/db conn) venda-id))
 (pprint (db.venda/historico (d/db conn) venda-id2))
 (pprint (db.venda/historico (d/db conn) venda-id3))
+
+(def todas-vendas (db.venda/todas-inclusive-canceladas (d/db conn)))
+
+(pprint (db.venda/historico-geral (d/db conn) #inst "2021-04-28T02:19:19.319-00:00"))
