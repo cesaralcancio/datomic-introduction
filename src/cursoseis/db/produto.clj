@@ -267,3 +267,5 @@
               [?tx :db/txInstant ?instante]]
             (d/history db) produto-id)
        (sort-by first)))
+
+(println "Carregado produto")

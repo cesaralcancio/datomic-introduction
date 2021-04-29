@@ -1,11 +1,11 @@
 (ns cursoseis.db.venda
   (:use clojure.pprint)
   (:require [datomic.api :as d]
-            [cursocinco_bancofiltrado.model :as model]
             [schema.core :as s]
             [clojure.set :as cset]
             [datomic.api :as dt]
-            [cursocinco-bancofiltrado.db.entidade :as db.entidade]))
+            [cursoseis.db.entidade :as db.entidade]
+            [cursoseis.model :as model]))
 
 (defn adiciona! [conn produto-id quantidade]
   (let [venda-id (model/uuid)
@@ -112,3 +112,5 @@
                 [$filtrado ?tx :db/txInstant ?instante]]
               db filtrado)
          (sort-by first))))
+
+(println "Carregado vendas")

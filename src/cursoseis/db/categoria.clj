@@ -43,3 +43,5 @@
                                   []
                                   produtos)]
     (d/transact conn para-transacionar)))
+
+(println "Carregado categorias")

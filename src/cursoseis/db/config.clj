@@ -3,7 +3,8 @@
   (:require [datomic.api :as d]
             [cursoseis.model :as model]
             [cursoseis.db.produto :as db.produto]
-            [cursoseis.db.categoria :as db.categoria]))
+            [cursoseis.db.categoria :as db.categoria]
+            [cursoseis.db.venda :as db.venda]))
 
 (def db-uri "datomic:dev://localhost:4334/hello")
 
@@ -153,4 +154,22 @@
 
   ; relacionar produto com categoria
   (db.categoria/atribui-categorias! conn [computador celular celular-barato, tabuleiro-de-xadrez, jogo-online] eletronicos)
-  (db.categoria/atribui-categorias! conn [tabuleiro-de-xadrez] esporte))
+  (db.categoria/atribui-categorias! conn [tabuleiro-de-xadrez] esporte)
+
+
+
+  (let [[return venda-id] (db.venda/adiciona! conn (:produto/id computador) 3)]
+    ;(def return return)
+    ;(def venda-id venda-id)
+    )
+  (let [[return2 venda-id2] (db.venda/adiciona! conn (:produto/id computador) 4)]
+    ;(def return2 return2)
+    ;(def venda-id2 venda-id2)
+    )
+  (let [[return3 venda-id3] (db.venda/adiciona! conn (:produto/id computador) 8)]
+    ;(def return3 return3)
+    ;(def venda-id3 venda-id3)
+    )
+  )
+
+(println "Carregado config")

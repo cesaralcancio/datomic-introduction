@@ -15,3 +15,5 @@
 
 (defn datomic-para-entidade [entidades]
   (clojure.walk/prewalk dissoc-db-id entidades))
+
+(println "Carregado entidade")

@@ -1,7 +1,7 @@
 (ns cursoseis.db.variacao
   (:use clojure.pprint)
   (:require [datomic.api :as d]
-            [cursocinco_bancofiltrado.model :as model]
+            [cursoseis.model :as model]
             [schema.core :as s]))
 
 (s/defn adiciona-variacao!
@@ -15,3 +15,5 @@
                        }
                       {:produto/id       produto-id
                        :produto/variacao "id-temporario"}])))
+
+(println "Carregado variacao")
