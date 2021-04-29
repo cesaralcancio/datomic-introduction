@@ -38,6 +38,7 @@
              {:db/ident       :produto/preco
               :db/valueType   :db.type/bigdec
               :db/cardinality :db.cardinality/one
+              :db/index       true
               :db/doc         "O preco de um produto com precisao monetaria."
               }
              {

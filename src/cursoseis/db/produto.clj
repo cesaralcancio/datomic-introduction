@@ -18,7 +18,7 @@
 
 (s/defn todos-os-produtos :- [model/Produto] [db]
   (db.entidade/datomic-para-entidade (d/q '[:find [(pull ?produto [* {:produto/categoria [*]}]) ...]
-                                            :where [?produto :produto/nome]] db)))
+                                            :where [?produto :produto/id]] db)))
 
 ; TODOS OS PRODUTOS POR....
 (defn todos-os-produtos-por-slug-fixo [db]
@@ -269,3 +269,36 @@
        (sort-by first)))
 
 (println "Carregado produto")
+
+(defn busca-mais-caro [db]
+  (d/q '[:find (max ?preco) .
+         :where [?produto :produto/preco ?preco]]
+       db))
+
+(defn busca-mais-caro-que [db preco-minimo]
+  (d/q '[:find [(pull ?produto [*]) ...]
+         :in $ ?preco-min
+         :where [?produto :produto/preco ?preco]
+         [(>= ?preco ?preco-min)]]
+       db preco-minimo))
+
+(defn busca-por-preco [db preco]
+  (d/q '[:find [(pull ?produto [*]) ...]
+         :in $ ?preco-buscado
+         :where [?produto :produto/preco ?preco-buscado]]
+       db preco))
+
+(defn busca-por-preco-e-nome [db preco-minimo trecho-do-nome]
+  (d/q '[:find [(pull ?produto [*]) ...]
+         :in $ ?p-minimo ?t-nome
+         :where [?produto :produto/nome ?produto-nome]
+         [?produto :produto/preco ?produto-preco]
+         [(>= ?produto-preco ?p-minimo)]
+         [(clojure.string/includes? ?produto-nome ?t-nome)]]
+       db preco-minimo trecho-do-nome))
+
+; os tipos de find:
+; :find ?a = um vector com cada resultado dentro de um vector, por ex, [[a] [b] [c]]
+; :find [?a] = um só dentro de um vector
+; :find ?a . = um só fora de um vetor
+; :find [?a ...] = um vector com os objetos dentro direto, por ex, [a b c]
