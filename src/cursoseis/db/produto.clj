@@ -309,4 +309,8 @@
 ; :find ?a . = just one tuple but outside the vector, for example: 2019
 ; :find [?a ...] = just the vector and the tuples outside the vector, for example: [2017 2018 2019]
 
-: Ref: https://docs.datomic.com/cloud/query/query-data-reference.html#binding-forms
+; References:
+; * https://docs.datomic.com/on-prem/query/query.html#find-specifications - specifications for :find
+; * https://docs.datomic.com/cloud/query/query-data-reference.html#find-specs - specs general
+; * https://docs.datomic.com/cloud/query/query-data-reference.html#binding-forms - binding for in
+
