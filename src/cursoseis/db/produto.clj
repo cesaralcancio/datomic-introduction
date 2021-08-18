@@ -297,8 +297,16 @@
          [(clojure.string/includes? ?produto-nome ?t-nome)]]
        db preco-minimo trecho-do-nome))
 
-; os tipos de find:
-; :find ?a = um vector com cada resultado dentro de um vector, por ex, [[a] [b] [c]]
-; :find [?a] = um só dentro de um vector
-; :find ?a . = um só fora de um vetor
-; :find [?a ...] = um vector com os objetos dentro direto, por ex, [a b c]
+; Portugues: os tipos de find:
+; :find ?year = um vector com cada resultado dentro de um vector, por ex: [[2017] [2018] [2019]]
+; :find [?year] = um só dentro de um vector, por ex: [2019]
+; :find ?a . = um só fora de um vetor, por ex: 2019
+; :find [?a ...] = um vector com os objetos dentro direto, por ex, [2017 2018 2019]
+
+; English :find selector
+; :find ?year = one vector with several vector inside - tuple - with the value, for example: [[2017] [2018] [2019]]
+; :find [?year] = just one tuple, for example: [2019]
+; :find ?a . = just one tuple but outside the vector, for example: 2019
+; :find [?a ...] = just the vector and the tuples outside the vector, for example: [2017 2018 2019]
+
+: Ref: https://docs.datomic.com/cloud/query/query-data-reference.html#binding-forms
